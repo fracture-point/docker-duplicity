@@ -11,8 +11,10 @@ ENV CRONTAB_15MIN='*/15 * * * *' \
     EMAIL_TO='' \
     JOB_300_WHAT='backup' \
     JOB_300_WHEN='daily' \
+    JOB_500_WHAT='dup full $SRC $DST' \
+    JOB_500_WHEN='monthly' \
     OPTIONS='' \
-    OPTIONS_EXTRA='--metadata-sync-mode partial' \
+    OPTIONS_EXTRA='--metadata-sync-mode partial --full-if-older-than 1W --file-prefix-archive archive-$(hostname -f)- --file-prefix-manifest manifest-$(hostname -f)- --file-prefix-signature signature-$(hostname -f)- --s3-european-buckets --s3-multipart-chunk-size 10 --s3-use-new-style' \
     SMTP_HOST='smtp' \
     SMTP_PASS='' \
     SMTP_PORT='25' \
@@ -87,30 +89,5 @@ RUN apk add --no-cache --virtual .build \
 COPY bin/* /usr/local/bin/
 RUN chmod a+rx /usr/local/bin/* && sync
 
-FROM latest AS latest-s3
-ENV JOB_500_WHAT='dup full $SRC $DST' \
-    JOB_500_WHEN='weekly' \
-    OPTIONS_EXTRA='--metadata-sync-mode partial --full-if-older-than 1W --file-prefix-archive archive-$(hostname -f)- --file-prefix-manifest manifest-$(hostname -f)- --file-prefix-signature signature-$(hostname -f)- --s3-european-buckets --s3-multipart-chunk-size 10 --s3-use-new-style'
-
-
 FROM latest AS docker
 RUN apk add --no-cache docker
-
-
-FROM docker AS docker-s3
-ENV JOB_500_WHAT='dup full $SRC $DST' \
-    JOB_500_WHEN='weekly' \
-    OPTIONS_EXTRA='--metadata-sync-mode partial --full-if-older-than 1W --file-prefix-archive archive-$(hostname -f)- --file-prefix-manifest manifest-$(hostname -f)- --file-prefix-signature signature-$(hostname -f)- --s3-european-buckets --s3-multipart-chunk-size 10 --s3-use-new-style'
-
-
-FROM latest AS postgres
-RUN apk add --no-cache postgresql
-ENV JOB_200_WHAT psql -0Atd postgres -c \"SELECT datname FROM pg_database WHERE NOT datistemplate AND datname != \'postgres\'\" | xargs -0tI DB pg_dump --dbname DB --no-owner --no-privileges --file \"\$SRC/DB.sql\"
-ENV JOB_200_WHEN='daily weekly' \
-    PGHOST=db
-
-
-FROM postgres AS postgres-s3
-ENV JOB_500_WHAT='dup full $SRC $DST' \
-    JOB_500_WHEN='weekly' \
-    OPTIONS_EXTRA='--metadata-sync-mode partial --full-if-older-than 1W --file-prefix-archive archive-$(hostname -f)- --file-prefix-manifest manifest-$(hostname -f)- --file-prefix-signature signature-$(hostname -f)- --s3-european-buckets --s3-multipart-chunk-size 10 --s3-use-new-style'
