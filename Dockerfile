@@ -11,8 +11,8 @@ ENV CRONTAB_15MIN='*/15 * * * *' \
     EMAIL_TO='' \
     JOB_300_WHAT='backup' \
     JOB_300_WHEN='daily' \
-    JOB_500_WHAT: 'backup && dup cleanup --force $DST' \
-    JOB_500_WHEN: 'weekly' \
+    JOB_500_WHAT= 'backup && dup cleanup --force $DST' \
+    JOB_500_WHEN= 'weekly' \
     OPTIONS='' \
     OPTIONS_EXTRA='--metadata-sync-mode partial --full-if-older-than 1M --remove-all-but-n-full 2 --file-prefix-archive archive-$(hostname -f)- --file-prefix-manifest manifest-$(hostname -f)- --file-prefix-signature signature-$(hostname -f)- --s3-european-buckets --s3-multipart-chunk-size 10 --s3-use-new-style --s3-use-deep-archive' \
     SMTP_HOST='smtp' \
