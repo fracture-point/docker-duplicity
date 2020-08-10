@@ -83,7 +83,7 @@ RUN apk add --no-cache --virtual .build \
         python-swiftclient \
         requests_oauthlib \
         # Duplicity from source code
-        https://gitlab.com/duplicity/duplicity/-/archive/rel.0.8.15/duplicity-rel.0.8.15.tar.bz2 \
+        https://gitlab.com/duplicity/duplicity/-/archive/rel.0.8.14/duplicity-rel.0.8.14.tar.bz2 \
     && apk del .build
 
 COPY bin/* /usr/local/bin/
